@@ -14,7 +14,13 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@banano-casino/chat": ["libs/chat/src/index.ts"],
+      "@banano-casino/lib-casino": ["libs/lib-casino/src/index.ts"],
+      "@banano-casino/lib-poker-js": ["libs/lib-poker-js/src/index.ts"],
+      "@banano-casino/lib-react": ["libs/lib-react/src/index.ts"],
+      "@banano-casino/util": ["libs/util/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

@@ -1,0 +1,12 @@
+
+/* Start with an omaha hand with side pot to test api for hand strength. */
+
+it("foo", () => {
+  expect(true).toBeTruthy();
+});
+
+
+it("should find winners in all pots", () => {
+  const omaha = 
+})
+

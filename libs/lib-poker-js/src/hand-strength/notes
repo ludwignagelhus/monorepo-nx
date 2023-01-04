@@ -1,0 +1,34 @@
+The current implementation is naive;
+likely multiple possible optimizations for finding winners, but postpone this until performance hand strength
+calculation becomes a problematic/bottleneck.
+
+================================
+
+Future optimization:
+Decision tree for doing less logic:
+Probably not very necessary...?
+Or actually maybe yes? Would make every hand check faster.
+!!Before doing this, do some benchmarking to find system bottlenecks.
+
+Very large do block so don't need do same logic multiple times? (ie. full house and trips finding)
+
+[start]
+1. get flush
+- Is straight flush+? return;
+- is flush? -> has full house?
+
+2. [no flush]
+- has house?
+  - yes -> can stop
+  (don't need to check for flush here; has already been done in 1)
+  - no -> go to 3
+
+3. has straight
+
+etc. etc.
+
+
+TODO:
+- make tests pass:
+  - 
+

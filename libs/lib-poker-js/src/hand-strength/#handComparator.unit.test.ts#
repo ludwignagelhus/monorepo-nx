@@ -1,0 +1,51 @@
+import { handComparator } from ".";
+import { Card } from "../../card";
+import { PokerHand } from "../getHandValue";
+
+it("", () => {
+  expect(true).toBeTruthy();
+});
+
+/* Normal comparison. */
+test("Highest pair", () => {
+  const h1: PokerHand = {
+    kind: "twoPair",
+    cards: [
+      Card(14, "hearts"),
+      Card(14, "spades"),
+      Card(2, "hearts"),
+      Card(2, "spades"),
+      Card(4, "clubs"),
+    ],
+  };
+  const h2: PokerHand = {
+    kind: "twoPair",
+    cards: [
+      Card(13, "hearts"),
+      Card(13, "spades"),
+      Card(12, "hearts"),
+      Card(12, "spades"),
+      Card(2, "spades"),
+    ],
+  };
+  expect(handComparator(h1, h2)).toEqual(1);
+});
+
+// /* Advanced one; full house has some special logic. */
+// it("foo", () => {
+//   const communityCards = [
+//     Card(2, "spades"),
+//     Card(2, "spades"),
+//     Card(3, "spades"),
+//     Card(4, "spades"),
+//     Card(13, "spades"),
+//   ];
+
+//   /* Make sure it has the (high card) edge case... */
+//   /* 2-2-2-K-K */
+//   /* 3-3-3-2-2 <- winner */
+
+//   const h1: PokerHand = { cards: [Card(13, "diamonds"), Card(2, "spades")], kind: "fullHouse" };
+//   const h2: PokerHand = { cards: [Card(3, "spades"), Card(3, "diamonds")], kind: "fullHouse" };
+//   expect(handComparator(h1, h2)).toEqual(-1);
+// });

@@ -1,0 +1,34 @@
+.TableWrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 5em;
+  background: red;
+}
+
+.Seat {
+  height: 100px;
+  width: 100px;
+  background: green;
+  border: 3px solid black;
+  position: relative;
+}
+
+/* What is clean way to have variants for things? */
+/* Ie. different colors, borders etc. */
+.PlayerButton {
+  align-items: center;
+  background: lightblue;
+  bottom: 5px;
+  border: 4px solid orange;
+  border-radius: 50%;
+  display: flex;
+  font-weight: bold;
+  font-size: 0.8em;
+  justify-content: center;
+  position: absolute;
+  right: 5px;
+
+  height: 25px;
+  width: 25px;
+}

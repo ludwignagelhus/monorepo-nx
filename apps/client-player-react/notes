@@ -1,0 +1,2 @@
+Add tailwind and create initial client with react -> solidjs doesn't have working generator,
+and adding a solidjs project manually is complicated :<
