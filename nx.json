@@ -11,6 +11,9 @@
       "dependsOn": ["^build"],
       "inputs": ["default", "^production", "{workspaceRoot}/vite.config.ts"]
     },
+    "build:client": {
+      "dependsOn": ["^build"]
+    },
     "lint": {
       "inputs": ["default", "{workspaceRoot}/.eslintrc.json"]
     },

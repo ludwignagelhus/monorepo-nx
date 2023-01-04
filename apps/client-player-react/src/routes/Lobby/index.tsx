@@ -1,12 +1,12 @@
 import { useEffect } from "react";
-import { joinLobby, leaveLobby } from "../../ws";
+import { wsSend } from "../../ws";
 
 /* Some kinda table format? column names at the top. */
 
 export const Lobby = () => {
   useEffect(() => {
-    joinLobby();
-    return leaveLobby;
+    wsSend.lobbyJoin();
+    return wsSend.lobbyLeave;
   }, []);
 
   return (

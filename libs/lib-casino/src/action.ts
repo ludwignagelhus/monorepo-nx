@@ -52,57 +52,57 @@ export const mkAction = {
   turn: (cards: [Card, Card, Card], table: string) => ({ ...Action("turn"), cards, table }),
   river: (cards: [Card, Card, Card], table: string) => ({ ...Action("river"), cards, table }),
 
-  // // showdown events
-  // // Find players hand when their holecards are turned over.
-  // showHolecards: (seat: number, cards: Card[]) => ({ ...Action("showHolecards"), seat, cards }),
-  // announceWinner: (seat: number) => ({ ...Action("announceWinner") }), // how exactly will work?
+  // showdown events
+  // Find players hand when their holecards are turned over.
+  showHolecards: (seat: number, cards: Card[]) => ({ ...Action("showHolecards"), seat, cards }),
+  announceWinner: (seat: number) => ({ ...Action("announceWinner") }), // how exactly will work?
 
-  // // = = = table misc = = =
-  // // Some actions are a bit different? Actions pertainig to joing/leaving things
-  // //   >> "transactional" in nature.
-  // // In these situations... client->server and server->SM may be different?
-  // // Or needn't be? Here can also verify that incoming transaction actions are valid.
+  // = = = table misc = = =
+  // Some actions are a bit different? Actions pertainig to joing/leaving things
+  //   >> "transactional" in nature.
+  // In these situations... client->server and server->SM may be different?
+  // Or needn't be? Here can also verify that incoming transaction actions are valid.
 
-  // reqSeat: (seat: number) => ({ ...mkTableAction("requestSeat"), seat }),
-  // occupySeat: (arg: { seat: number; displayName: string; chips: number }) => ({
-  //   ...mkTableAction("occupySeat"),
-  //   ...arg,
-  // }),
+  reqSeat: (seat: number) => ({ ...mkTableAction("requestSeat"), seat }),
+  occupySeat: (arg: { seat: number; displayName: string; chips: number }) => ({
+    ...mkTableAction("occupySeat"),
+    ...arg,
+  }),
 
-  // addChips: (amount: number) => ({ ...mkTableAction("addChips"), amount }),
+  addChips: (amount: number) => ({ ...mkTableAction("addChips"), amount }),
 
-  // sitOut: mkTableAction("sitOut"),
-  // sitIn: (postBlinds: boolean) => ({ ...mkTableAction("sitIn"), postBlinds }),
+  sitOut: mkTableAction("sitOut"),
+  sitIn: (postBlinds: boolean) => ({ ...mkTableAction("sitIn"), postBlinds }),
 
-  // seatLeave: (seat: number) => ({ ...mkTableAction("reserveSeat"), seat }),
+  seatLeave: (seat: number) => ({ ...mkTableAction("reserveSeat"), seat }),
 
-  // // = = = other misc. = = =
-  // lobbyJoin: () => ({ ...Action("lobbyJoin") }),
-  // lobbyLeave: () => ({ ...Action("lobbyLeave") }),
-  // /* TODO: data needed to display table in lobby */
-  // tableAdded: (arg: {}) => Action("tableAdded"), // server
-  // tableRemoved: mkTableAction("tableRemoved"), // server
+  // = = = other misc. = = =
+  lobbyJoin: () => ({ ...Action("lobbyJoin") }),
+  lobbyLeave: () => ({ ...Action("lobbyLeave") }),
+  /* TODO: data needed to display table in lobby */
+  tableAdded: (arg: {}) => Action("tableAdded"), // server
+  tableRemoved: mkTableAction("tableRemoved"), // server
 
-  // // = = = misc = = =
-  // // misc. things to be implemented later
+  // = = = misc = = =
+  // misc. things to be implemented later
 
-  // // hmm...
+  // hmm...
 
-  // // sending chat; results in
-  // sendChat: (room: string, text: string) => ({ ...mkTableAction("chat") }),
-  // chatMessage: (msg: ChatMessage) => ({ ...Action("chatMessage"), ...msg }),
+  // sending chat; results in
+  sendChat: (room: string, text: string) => ({ ...mkTableAction("chat") }),
+  chatMessage: (msg: ChatMessage) => ({ ...Action("chatMessage"), ...msg }),
 
-  // // = = = tournaments = = =
+  // = = = tournaments = = =
 
-  // // tournament (both mtt and sngs?)
-  // tournamentJoin: (/* id: Tournament["id"] */) => ({ ...mkTableAction("joinTournament") }), // both join and rebuy
-  // buyAddOn: (/* id: Tournament["id"] */) => ({ ...Action("buyAddOn") }),
-  // tournamentStart: () => {},
+  // tournament (both mtt and sngs?)
+  tournamentJoin: (/* id: Tournament["id"] */) => ({ ...mkTableAction("joinTournament") }), // both join and rebuy
+  buyAddOn: (/* id: Tournament["id"] */) => ({ ...Action("buyAddOn") }),
+  tournamentStart: () => {},
 
-  // // administer tables and private rooms
-  // reqCreateTable: (config: TableConfig["id"]) => Action("requestCreateTable"),
-  // inviteToGame: (inviter: string, invitee: string) => Action("inviteToGame"),
-  // // ^TODO type GameRef = Cashgame["id"] | Tournament["id"];
+  // administer tables and private rooms
+  reqCreateTable: (config: TableConfig["id"]) => Action("requestCreateTable"),
+  inviteToGame: (inviter: string, invitee: string) => Action("inviteToGame"),
+  // ^TODO type GameRef = Cashgame["id"] | Tournament["id"];
 };
 
 export type ActionName = keyof typeof mkAction;

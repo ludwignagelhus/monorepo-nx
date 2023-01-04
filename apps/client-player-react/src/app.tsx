@@ -1,6 +1,6 @@
 import { Link, Navigate, Route, Routes } from "react-router-dom";
-import { Lobby } from "./lib/Lobby";
-import { Table } from "./lib/Table";
+import { Lobby } from "./routes/Lobby";
+import { Table } from "./routes/Table";
 
 export function App() {
   return (

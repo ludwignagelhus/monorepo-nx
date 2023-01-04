@@ -19,7 +19,7 @@
 import * as poker from "@banano-casino/lib-poker-js";
 import { Fragment, useState } from "react";
 import { Card } from "../../lib/Card";
-import { check, fold, raise } from "../../ws";
+import { wsSend } from "../../ws";
 import style from "./index.module.scss";
 
 /* A few of these types can probably be imported from lib-poker-js. */
@@ -145,13 +145,13 @@ const Actions = () => {
   /* TODO: add slider to bet amount. */
   return (
     <div className="flex gap-3">
-      <button className="btn btn-accent bg-red-300" onClick={() => check("amazonas")}>
+      <button className="btn btn-accent bg-red-300" onClick={() => wsSend.check("amazonas")}>
         check
       </button>
-      <button className="btn btn-accent bg-red-300" onClick={() => fold("amazonas")}>
+      <button className="btn btn-accent bg-red-300" onClick={() => wsSend.fold("amazonas")}>
         fold
       </button>
-      <button className="btn btn-accent bg-red-300" onClick={() => raise("amazonas", bet)}>
+      <button className="btn btn-accent bg-red-300" onClick={() => wsSend.raise("amazonas", bet)}>
         bet
       </button>
       <input
