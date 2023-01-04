@@ -124,6 +124,7 @@ type LobbyTournament = {
   buyin: [price: number, fee?: number];
   // need some game config things, too.
 };
+
 // Does not need to be a complete table? Only need parts of table to display it in lobby. Use `Pick<PokerTable>`, then.
 type LobbyCashTable = {
   kind: "lobbyCashTable";
