@@ -11,13 +11,12 @@ type Rooms = Record<RoomName, sockjs.Connection[]>;
 
 // Tournament objs contains all neccessary data about the given tournament.
 
+// Share this type on client and server...?
 type Casino = {
   users: {};
-  poker: {
-    cashgames: Record<PokerTable["id"], PokerTable>;
-    tournaments: {};
-  };
-  blackjack: {};
+  tables: Record<PokerTable["id"], PokerTable>;
+  tournaments: Record<PokerTable["id"], PokerTable>;
+  // blackjack: {}; // etc.
 };
 
 /* possible to have clients subscribe to a part of an object? */
@@ -33,7 +32,9 @@ const conns: sockjs.Connection[] = [];
 
 /* One object for the entire app? */
 const Casino: Casino = {
-  cashgames: {},
+  tables: {},
+  tournaments: {},
+  users: [],
 };
 
 const rooms: Rooms = {};
@@ -52,16 +53,18 @@ ws.on("connection", (conn) => {
   console.log("Client connected.");
   conns.push(conn);
 
-  conn.on("data", async (m) => {
+  conn.on("data", (m) => {
     console.log("\nfrom client:");
     console.log(JSON.parse(m));
 
     /* So from here... */
     /* - pass action to right fn. */
-    /* - respond with right data? */
+    /* - respond with right data somehow? */
   });
 });
 
-const httpServer = createHttpServer(); // have to change to https when deploy?
+/* TODO: setup authn & authz. */
+
+const httpServer = createHttpServer();
 ws.installHandlers(httpServer);
 httpServer.listen(4205);
