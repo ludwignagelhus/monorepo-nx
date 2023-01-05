@@ -26,6 +26,15 @@ const tableConfig: TableConfig = {
 
 it("Should init hand correctly.", () => {
   const t = new PokerTable(tableConfig);
+  /* Wanna use some non-poker specific actions to set up table state for tests: */
+  /* - claim table seat */
+  /* - add chips (quick join? signed actions?) */
+  /*     joining table triggers a request to get players default settings wrt. posting blinds etc. */
+  /* -  */
+
+  // This action needs verify players balance is large enough to buy into the game.
+  const st = updateTable(t, casino.joinTable());
+
   const action = poker.initNewHand("foo");
 
   /*  */

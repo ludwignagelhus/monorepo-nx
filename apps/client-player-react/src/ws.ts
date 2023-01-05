@@ -1,4 +1,4 @@
-import { Action, ActionName, mkAction } from "@banano-casino/lib-casino";
+import { Action, ActionName } from "@banano-casino/lib-casino";
 import { flow as f, pipe as p } from "fp-ts/lib/function";
 import * as R from "fp-ts/Record";
 import SockJS from "sockjs-client";

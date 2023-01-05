@@ -21,19 +21,32 @@ import { Action, mkTableAction } from "@banano-casino/lib-shared";
 // have the missing actions re-sent.
 
 // Move this to somewhere else...
-export type Action = ReturnType<typeof mkAction[keyof typeof mkAction]>;
-// const fooAction: Action = { kind: "sitIn" };
+// Refactor this to match new architecture of actions.
+// Casino can depend on sub game libs? ie. import object with poker
+// actions from lib-poker in lib-casino.
+export type Action = ReturnType<typeof casino[keyof typeof casino]>;
 
-/* TODO?: considering putting poker related actions into the poker lib. */
-/* Table actions, lobby etc can stay in casino lib, though. */
+// Some actions are a bit different? Actions pertainig to joing/leaving things
+//   >> "transactional" in nature.
+// In these situations... client->server and server->SM may be different?
+// Or needn't be? Here can also verify that incoming transaction actions are valid.
 
-export const mkAction = {
-  // = = = table misc = = =
-  // Some actions are a bit different? Actions pertainig to joing/leaving things
-  //   >> "transactional" in nature.
-  // In these situations... client->server and server->SM may be different?
-  // Or needn't be? Here can also verify that incoming transaction actions are valid.
+// This can be split up further?
 
+const table = {};
+
+const chat = {};
+
+const tournament = {};
+
+const player = {};
+
+// And then casino is the sum of all namespaces, but still nested under casino under their
+// respective name.
+
+// Will work nicely with lenses too?
+
+export const casino = {
   reqSeat: (seat: number) => ({ ...mkTableAction("requestSeat"), seat }),
   occupySeat: (arg: { seat: number; displayName: string; chips: number }) => ({
     ...mkTableAction("occupySeat"),
@@ -78,7 +91,7 @@ export const mkAction = {
   // ^TODO type GameRef = Cashgame["id"] | Tournament["id"];
 };
 
-export type ActionName = keyof typeof mkAction;
+export type ActionName = keyof typeof casino;
 
 // This exists in chat lib?
 type ChatMessage = {
@@ -89,6 +102,7 @@ type ChatMessage = {
 };
 
 // Move to lobby module?
+// And move lobby actions with it?
 // TODO
 type LobbyTournament = {
   kind: "lobbyTournament";
