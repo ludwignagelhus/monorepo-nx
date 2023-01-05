@@ -31,13 +31,64 @@ export type Action = ReturnType<typeof casino[keyof typeof casino]>;
 // In these situations... client->server and server->SM may be different?
 // Or needn't be? Here can also verify that incoming transaction actions are valid.
 
-// This can be split up further?
+// For actions which trigger/need a balance check...
+// Have some service for this? balanceService?
+// - check balance
+// - balanace transaction request
+// - deposit
+// - withdraw
+// (- send to other players?)
 
-const table = {};
+// And how would this work? Before send action on it's way...
+// Idk... communicate with balanceService in some way...
+// get balance from balance service?
+// balance service reserves some money for a short while?
+// reservation number is returned as response.
+// - player: I wish to join this table. Take moeny from my balance from balance service.
+// -> enough balance?
+// -> transfer successful?
+// --> response from table
+// async action?
 
-const chat = {};
+const table = {
+  tableVisit: (arg: {}) => Action("tableVisit"),
+  reqSeat: (seat: number) => ({ ...mkTableAction("requestSeat"), seat }),
+  seatOccupy: (arg: { seat: number; displayName: string; chips: number }) => ({
+    // ^needs check
+    ...mkTableAction("occupySeat"),
+    ...arg,
+  }),
+  addChips: (amount: number) => ({ ...mkTableAction("addChips"), amount }), // <- needs check
+  sitOut: mkTableAction("sitOut"),
+  sitIn: (postBlinds: boolean) => ({ ...mkTableAction("sitIn"), postBlinds }),
+  seatLeave: (seat: number) => ({ ...mkTableAction("reserveSeat"), seat }),
+  tableLeave: (arg: {}) => Action("tableAdded"),
+};
 
-const tournament = {};
+const chat = {
+  // sending chat; results in
+  sendChat: (room: string, text: string) => ({ ...mkTableAction("chat") }),
+  chatMessage: (msg: ChatMessage) => ({ ...Action("chatMessage"), ...msg }),
+};
+
+const lobby = {
+  lobbyJoin: () => ({ ...Action("lobbyJoin") }),
+  lobbyLeave: () => ({ ...Action("lobbyLeave") }),
+
+  tableAdded: (arg: {}) => Action("tableAdded"), // server
+  tableRemoved: mkTableAction("tableRemoved"), // server
+};
+
+const tournament = {
+  // = = = tournaments = = =
+
+  // tournament (both mtt and sngs?)
+  // both join and rebuy? but want to alert other players at table, that a player
+  // rebought, and not joined when they do rebuy. Probably add rebuy as separate action.
+  tournamentJoin: (/* id: Tournament["id"] */) => ({ ...mkTableAction("joinTournament") }),
+  buyAddOn: (/* id: Tournament["id"] */) => ({ ...Action("buyAddOn") }),
+  tournamentStart: () => {},
+};
 
 const player = {};
 
@@ -47,46 +98,10 @@ const player = {};
 // Will work nicely with lenses too?
 
 export const casino = {
-  reqSeat: (seat: number) => ({ ...mkTableAction("requestSeat"), seat }),
-  occupySeat: (arg: { seat: number; displayName: string; chips: number }) => ({
-    ...mkTableAction("occupySeat"),
-    ...arg,
-  }),
-
-  addChips: (amount: number) => ({ ...mkTableAction("addChips"), amount }),
-
-  sitOut: mkTableAction("sitOut"),
-  sitIn: (postBlinds: boolean) => ({ ...mkTableAction("sitIn"), postBlinds }),
-
-  seatLeave: (seat: number) => ({ ...mkTableAction("reserveSeat"), seat }),
-
-  // = = = other misc. = = =
-  lobbyJoin: () => ({ ...Action("lobbyJoin") }),
-  lobbyLeave: () => ({ ...Action("lobbyLeave") }),
-  /* TODO: data needed to display table in lobby */
-  tableAdded: (arg: {}) => Action("tableAdded"), // server
-  tableVisit: (arg: {}) => Action("tableVisit"),
-  tableLeave: (arg: {}) => Action("tableAdded"),
-  tableRemoved: mkTableAction("tableRemoved"), // server
-
-  // = = = misc = = =
-  // misc. things to be implemented later
-
-  // sending chat; results in
-  sendChat: (room: string, text: string) => ({ ...mkTableAction("chat") }),
-  chatMessage: (msg: ChatMessage) => ({ ...Action("chatMessage"), ...msg }),
-
-  // = = = tournaments = = =
-
-  // tournament (both mtt and sngs?)
-  // both join and rebuy? but want to alert other players at table, that a player
-  // rebought, and not joined when they do rebuy. Probably add rebuy as separate action.
-  tournamentJoin: (/* id: Tournament["id"] */) => ({ ...mkTableAction("joinTournament") }),
-  buyAddOn: (/* id: Tournament["id"] */) => ({ ...Action("buyAddOn") }),
-  tournamentStart: () => {},
-
   // administer tables and private rooms
-  reqCreateTable: (config: TableConfig["id"]) => Action("requestCreateTable"),
+  createTable: (config: TableConfig["id"]) => Action("requestCreateTable"),
+
+  // where to put...
   inviteToGame: (inviter: string, invitee: string) => Action("inviteToGame"),
   // ^TODO type GameRef = Cashgame["id"] | Tournament["id"];
 };
