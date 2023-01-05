@@ -1,53 +1,58 @@
+import { Action, mkTableAction } from "@banano-casino/lib-shared";
 import { Card, Deck } from "../shared/card";
 import { isPlaying, PokerTable } from "../tmp/table/table";
 import { bumpPlayerToAct } from "./util";
 
-/* Some of these things can be lenses? */
-/* Can use same lenses on config objects and tables. */
-/* ?If so, put lenses next to their types? */
-/* Can also think about using the other kind of lens... which is not called a lens. */
-/* "Optional" lenses. Is some kind of optic, anyway. */
-
-/* One action per kind of "thing" which can happen on the table. */
-/* Each thing is representable as something which happens on the players screen. */
-
 /* TODO: some actions will have special "rules" to prevent exploits; */
 /* eg. cannot leave and join same table to reduce ones stack. */
-/* What do IRL casinos say about this? PokerStars doesn't allow it. */
+/* What do IRL casinos say about this? */
 
-/* TODO?: have a stash which has some code for actions. */
-/* Some overlap, but also some things which are missing now? */
-/* Find out what is missing and useful and copy the code over to HEAD. */
+/* TODO?: write descriptions for action "side effects" which are non obvious; */
+/* ie. toggling on posting blinds early also sets players "post blinds" to true. */
 
-/* Somewhere want a union type of app actions in app... */
+type PokerAction = ReturnType<typeof poker[keyof typeof poker]>;
 
-/* Ie. table action. */
-export type TableAction =
-  | { kind: "call" }
-  | { kind: "fold" }
-  | { kind: "check" }
-  | { kind: "raise"; chips: number }
-  | { kind: "straddle" }
-  | { kind: "postOtherBlind"; blindIndex: number } // for when have more than 2 blinds.
-  | { kind: "postBigBlind" }
-  | { kind: "postSmallBlind" }
-  | { kind: "togglePostBlindsEarly" } // when player doesn't want to wait for big blind to begin playing
-  | { kind: "postAntes" }
-  | { kind: "toggleTimebank" }
-  | { kind: "sitOut" }
-  | { kind: "sitIn" }
-  | { kind: "claimSeat" }
-  | { kind: "leaveSeat" }
-  | { kind: "addChips"; chips: number }
-  | { kind: "changeGameConfig"; chips: number } // hmm... or table refers to config object?
-  | { kind: "dealHoleCards"; holecardSth: Card[][] } // hmm
-  | { kind: "communityCards"; cards: Card[] }
-  | { kind: "startNewHand" }; // clears
+/* TODO: when have most actions complete, use array of actions names and mkTableAction to define the actions. */
+export const poker = {
+  // = = = table play = = =
 
-// table-prop only used to "route action to the right place".
-type ClientTableAction = TableAction & { table: PokerTable["id"] };
+  initNewHand: mkTableAction("initNewHand"),
+  // belonging to initNewHand
+  dealHolecards: () => {},
 
-const fa: ClientTableAction = { kind: "addChips", chips: 50, table: "foo" };
+  // hand init
+  postBlind: (iBlind: number) => ({ ...Action("postBlind"), iBlind }), // split into each blind..?
+  togglePostBlinds: () => mkTableAction("togglePostBlinds"), // client->server
+  postBlindsEarly: () => mkTableAction("postBlindsEarly"),
+  bumpDealerPosition: () => mkTableAction("bumpDealerPosition"),
+  postAntes: () => mkTableAction("postAntes"), // server->client
+
+  straddle: mkTableAction("straddle"),
+  dealCards: mkTableAction("dealCards"),
+
+  // preflop
+  check: mkTableAction("check"),
+  call: mkTableAction("call"),
+  fold: mkTableAction("fold"),
+  raise: (table: string, amount: number) => ({ ...Action("raise"), amount, table }),
+
+  //
+  reqDealTwice: mkTableAction("reqDealTwice"),
+  dealTwice: mkTableAction("dealTwice"),
+
+  // server initiated game actions
+  flop: (cards: [Card, Card, Card], table: string) => ({ ...Action("flop"), cards, table }),
+  turn: (cards: [Card, Card, Card], table: string) => ({ ...Action("turn"), cards, table }),
+  river: (cards: [Card, Card, Card], table: string) => ({ ...Action("river"), cards, table }),
+
+  // showdown events
+  // Reveal and find players hand when their holecards are turned over.
+  // Server reveals hole cards, but don't need to announce hand strength and winner;
+  // All this can be re computed client side->minimize network traffic.
+  // What is usually bottleneck on websocket servers?
+  showHolecards: (seat: number, cards: Card[]) => ({ ...Action("showHolecards"), seat, cards }),
+  announceWinner: (seat: number) => ({ ...Action("announceWinner") }), // how exactly will work?
+};
 
 const call = (table: PokerTable) => {
   /* can call? */
@@ -78,10 +83,11 @@ const fold = (table: PokerTable) => {
 };
 
 /* Maybe some clock thing? For modes when want to rotate game configs/tournaments etc. */
-type initHand = (table: PokerTable) => [PokerTable, TableAction[]];
+/* That can be done in parent scope with setTimeout probably. */
+type initHand = (table: PokerTable) => [PokerTable, PokerAction[]];
 export const initHand: initHand = (table) => {
   const t = table;
-  const actions: TableAction[] = [];
+  const actions: PokerAction[] = [];
 
   t.deck = Deck();
 

@@ -1,20 +1,7 @@
-/* - simple table on pc */
-/* - simple lobby ui */
-/* - simple table ui */
-/* - events and buttons for actions */
-
-/* Then when things are kinds workign and can play hands... */
-
-/* Things is... do want people to start playing as quickly as possible... */
-/* Try to set up deployment and hosting if not too time consuming. */
-
 /* so: */
 /* simple impl. */
 /* deploy */
 /* create beautiful ui, and ui for different devices. */
-
-/* simple implementation will make clear which components are needed. */
-
 /* = = = = = = = =  */
 import * as poker from "@banano-casino/lib-poker-js";
 import { Fragment, useState } from "react";

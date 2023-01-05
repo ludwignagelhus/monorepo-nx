@@ -23,7 +23,10 @@ export const Lobby = () => {
 
 const TableInList = () => {
   return (
-    <div className="flex flex-row rounded gap-8 p-2.5 bg-base-300 hover:bg-base-200 select-none shadow-md">
+    <div
+      className="flex flex-row rounded gap-8 p-2.5 bg-base-300 hover:bg-base-200 select-none shadow-md"
+      onClick={() => wsSend.t}
+    >
       <p style={{ fontWeight: "bold" }}>Amazonas</p>
       <p>No-limit Texas hold'em</p>
       <p>3/4</p>

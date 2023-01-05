@@ -19,6 +19,7 @@
       "@banano-casino/lib-casino": ["libs/lib-casino/src/index.ts"],
       "@banano-casino/lib-poker-js": ["libs/lib-poker-js/src/index.ts"],
       "@banano-casino/lib-react": ["libs/lib-react/src/index.ts"],
+      "@banano-casino/lib-shared": ["libs/lib-shared/src/index.ts"],
       "@banano-casino/util": ["libs/util/src/index.ts"]
     }
   },

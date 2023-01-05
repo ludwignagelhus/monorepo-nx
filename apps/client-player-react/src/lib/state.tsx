@@ -1,9 +1,8 @@
 import { ChatMessage } from "@banano-casino/chat";
 import { CasinoTable } from "@banano-casino/lib-poker-js";
-import { createContext, useEffect, useState } from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 
 /* Using state machine on the client? */
-
 /* Think yes. */
 
 export type BananoCasino = {
@@ -12,17 +11,8 @@ export type BananoCasino = {
   chat: ChatMessage[];
 };
 
-/* Module for this? */
+/* TODO: module for this. */
 type User = {};
-
-/* Store needs to... handle updating state somewhat? */
-/* - state */
-/* - getting lobby state and updating. */
-/* - telling server we are no longer in the lobby, when lobby closes? */
-
-/* - ponging when server pings? */
-/* server may ping various rooms to determine whether any connections can be closed. */
-/* How would client know whether one of it's windows are the lobby? */
 
 /* Idk... first will receive all events always -> then improve. */
 /* Can probably keep things like this for a long time. Even if 100 tables always running, */
@@ -33,16 +23,17 @@ type User = {};
 // nanostores?
 const ContextBananoCasino = createContext<BananoCasino>(null!);
 
-export const ProviderBananoCasino = () => {
+export const ProviderBananoCasino = (props: { children: ReactNode }) => {
   const [casino, setCasino] = useState({
     tables: {},
     users: [],
     chat: [],
   });
 
-  useEffect(() => {
-    ws.
-  }, []);
+  /* ws. */
+  useEffect(() => {}, []);
 
-  return <ContextBananoCasino.Provider value={casino}></ContextBananoCasino.Provider>;
+  return (
+    <ContextBananoCasino.Provider value={casino}>{props.children}</ContextBananoCasino.Provider>
+  );
 };

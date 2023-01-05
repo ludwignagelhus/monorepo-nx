@@ -1,11 +1,13 @@
-import { Card, TableConfig } from "@banano-casino/lib-poker-js";
-import * as R from "fp-ts/Record";
+import { TableConfig } from "@banano-casino/lib-poker-js";
+import { Action, mkTableAction } from "@banano-casino/lib-shared";
 
 /* # # # Actions for making things happen. # # # */
 
 // Convention: prefix with "req" for requests which can fail.
 // Also, such actions will typically be client->server, and on success will result in
 // different-yet similar-action being broadcasted to listeners.
+// ...or naa. Only use prefix req, when client initiating an action does not have all necessary info
+// for action to be shared with other clints. What are examples of such situations?
 
 // Hence; there are 2 kinds of actions:
 // first kind of action are client made, used to update server state and finally broadcast back
@@ -18,45 +20,14 @@ import * as R from "fp-ts/Record";
 // Server keeps some actions in a list such that clients who have not received all actions can
 // have the missing actions re-sent.
 
-const Action = <T extends string>(name: T) => ({ kind: name });
-
-const mkTableAction =
-  <T extends string>(name: T) =>
-  (table: string) => ({ ...Action(name), table });
-
+// Move this to somewhere else...
 export type Action = ReturnType<typeof mkAction[keyof typeof mkAction]>;
 // const fooAction: Action = { kind: "sitIn" };
 
+/* TODO?: considering putting poker related actions into the poker lib. */
+/* Table actions, lobby etc can stay in casino lib, though. */
+
 export const mkAction = {
-  // = = = table play = = =
-
-  // preflop
-  initNewHand: mkTableAction("initNewHand"),
-
-  reqStraddle: mkTableAction("reqStraddle"),
-  straddle: mkTableAction("straddle"),
-
-  dealCards: mkTableAction("dealCards"),
-
-  check: mkTableAction("check"),
-  call: mkTableAction("call"),
-  fold: mkTableAction("fold"),
-  raise: (table: string, amount: number) => ({ ...Action("raise"), amount, table }),
-
-  // pre-showdown
-  reqDealTwice: mkTableAction("reqDealTwice"),
-  dealTwice: mkTableAction("dealTwice"),
-
-  // server initiated game actions
-  flop: (cards: [Card, Card, Card], table: string) => ({ ...Action("flop"), cards, table }),
-  turn: (cards: [Card, Card, Card], table: string) => ({ ...Action("turn"), cards, table }),
-  river: (cards: [Card, Card, Card], table: string) => ({ ...Action("river"), cards, table }),
-
-  // showdown events
-  // Find players hand when their holecards are turned over.
-  showHolecards: (seat: number, cards: Card[]) => ({ ...Action("showHolecards"), seat, cards }),
-  announceWinner: (seat: number) => ({ ...Action("announceWinner") }), // how exactly will work?
-
   // = = = table misc = = =
   // Some actions are a bit different? Actions pertainig to joing/leaving things
   //   >> "transactional" in nature.
@@ -81,12 +52,12 @@ export const mkAction = {
   lobbyLeave: () => ({ ...Action("lobbyLeave") }),
   /* TODO: data needed to display table in lobby */
   tableAdded: (arg: {}) => Action("tableAdded"), // server
+  tableVisit: (arg: {}) => Action("tableVisit"),
+  tableLeave: (arg: {}) => Action("tableAdded"),
   tableRemoved: mkTableAction("tableRemoved"), // server
 
   // = = = misc = = =
   // misc. things to be implemented later
-
-  // hmm...
 
   // sending chat; results in
   sendChat: (room: string, text: string) => ({ ...mkTableAction("chat") }),
@@ -95,7 +66,9 @@ export const mkAction = {
   // = = = tournaments = = =
 
   // tournament (both mtt and sngs?)
-  tournamentJoin: (/* id: Tournament["id"] */) => ({ ...mkTableAction("joinTournament") }), // both join and rebuy
+  // both join and rebuy? but want to alert other players at table, that a player
+  // rebought, and not joined when they do rebuy. Probably add rebuy as separate action.
+  tournamentJoin: (/* id: Tournament["id"] */) => ({ ...mkTableAction("joinTournament") }),
   buyAddOn: (/* id: Tournament["id"] */) => ({ ...Action("buyAddOn") }),
   tournamentStart: () => {},
 
