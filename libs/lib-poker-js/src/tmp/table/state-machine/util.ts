@@ -1,9 +1,6 @@
+import { PokerTable, Seat } from "@banano-casino/lib-poker-js";
 import { tuple } from "fp-ts-std";
-import { PokerTable } from "../tmp/table/table";
 import * as A from "fp-ts/Array";
-
-/* Needs this a bunch of places. */
-/* Put in util module? */
 
 /* This is probably some of the most complicated game logic. */
 export const bumpPlayerToAct = (table: PokerTable) => {

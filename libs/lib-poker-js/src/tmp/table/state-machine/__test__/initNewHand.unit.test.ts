@@ -1,9 +1,9 @@
+import { PokerGameConfig, PokerTable, TableConfig } from "@banano-casino/lib-poker-js";
 import { poker, updateTable } from "..";
-import { PokerConfig, PokerTable, TableConfig } from "../../tmp/table";
 
 /* Create and put somewhere a default game config usable for many tests. */
 
-const gameConfig: PokerConfig = {
+const gameConfig: PokerGameConfig = {
   variant: "holdem",
   blinds: [0.5, 1],
   rake: 0.15,
@@ -25,7 +25,7 @@ const tableConfig: TableConfig = {
 /* Yeah... tests for specific actions. */
 
 it("Should init hand correctly.", () => {
-  const t = new PokerTable(tableConfig);
+  const t = PokerTable(tableConfig);
   /* Wanna use some non-poker specific actions to set up table state for tests: */
   /* - claim table seat */
   /* - add chips (quick join? signed actions?) */
@@ -33,9 +33,9 @@ it("Should init hand correctly.", () => {
   /* -  */
 
   // This action needs verify players balance is large enough to buy into the game.
-  const st = updateTable(t, casino.joinTable());
+  // const st = updateTable(t, casino.joinTable());
 
-  const action = poker.initNewHand("foo");
+  const action = poker.initNewHand();
 
   /*  */
   const newT = updateTable(t, action);

@@ -19,10 +19,11 @@
       }
     },
     "test": {
-      "executor": "@nrwl/vite:test",
+      "executor": "@nrwl/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "config": "vite.config.ts"
+        "jestConfig": "libs/lib-poker-js/jest.config.ts",
+        "passWithNoTests": true
       }
     }
   },

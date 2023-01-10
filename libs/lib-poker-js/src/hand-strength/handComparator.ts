@@ -9,9 +9,9 @@ import { PokerHand } from "./getHandValue";
 
 type handComparator = (h1: PokerHand, h2: PokerHand) => HandComparisonResult;
 type HandComparisonResult =
-  | -1 // h2 better
+  | 1 // h1 better
   | 0 // tie
-  | 1; // h1 better
+  | -1; // h2 better
 export const handComparator: handComparator = (h1, h2) => {
   const h1Strength = getHandPresedence(h1.kind);
   const h2Strength = getHandPresedence(h2.kind);

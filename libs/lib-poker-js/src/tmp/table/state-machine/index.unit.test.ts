@@ -1,9 +1,8 @@
+import { Card, PokerTable } from "@banano-casino/lib-poker-js";
 import * as A from "fp-ts/lib/Array";
 import { difference } from "ramda";
-import { Card } from "../shared/card";
-import Table from "../tmp/table";
-import { testTableConfig } from "../tmp/table/test-utils";
-import { Action, initHand } from "./index";
+import { initHand, PokerAction } from "./index";
+import { testTableConfig } from "../test-utils";
 
 /* Testing special hand things...? */
 
@@ -87,7 +86,7 @@ describe("Hand is played to completion without errors:", () => {
     Card(8, "diamonds"),
   ];
 
-  let table = Table.PokerTable(testTableConfig);
+  let table = PokerTable(testTableConfig);
 
   /* - Init table. */
   /*   - have players sit down. */
@@ -100,12 +99,12 @@ describe("Hand is played to completion without errors:", () => {
   /*   - deal cards. */
   /*     - only players not sitting out get dealt cards. */
   describe("Initializes table for new hand correctly.", () => {
-    let t = Table.PokerTable(testTableConfig);
-    let actions: Action[];
+    let t = PokerTable(testTableConfig);
+    let actions: PokerAction[];
 
     [t, actions] = initHand(t);
 
-    const expected: Table.PokerTable = t;
+    const expected: PokerTable = t;
     test("Has a deck.", () => {
       expect(t.deck.length).toEqual(52);
     });
@@ -132,5 +131,6 @@ describe("Hand is played to completion without errors:", () => {
   // });
 });
 
-const stackDeck = (deck: Card[], stackedCards: Card[]) =>
-  A.concat(stackedCards)(difference(deck, stackedCards));
+function stackDeck(deck: Card[], stackedCards: Card[]) {
+  return A.concat(stackedCards)(difference(deck, stackedCards));
+}

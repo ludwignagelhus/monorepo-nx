@@ -1,4 +1,4 @@
-import * as fpStdR from "fp-ts-std/Record";
+import * as libR from "fp-ts-std/Record";
 import * as A from "fp-ts/Array";
 import { append, findFirst, size } from "fp-ts/lib/Array";
 import { flow as f, pipe as p } from "fp-ts/lib/function";
@@ -6,7 +6,7 @@ import { unprepend } from "fp-ts/lib/ReadonlyNonEmptyArray";
 import * as NEA from "fp-ts/NonEmptyArray";
 import { groupBy, NonEmptyArray } from "fp-ts/NonEmptyArray";
 import * as O from "fp-ts/Option";
-import { assoc, difference, drop, equals, prop, reduceWhile } from "ramda";
+import { assoc, difference, drop, equals, lte, prop, reduceWhile, uniq } from "ramda";
 import { first, maxBy } from "remeda";
 import { Card, partitionByRank, sortByRank } from "../shared/card";
 import { ConfigHandStrength } from "./shared";
@@ -19,6 +19,7 @@ import { ConfigHandStrength } from "./shared";
 /*   1.1. for each player: findHandValue */
 /*   1.2. find permutation with highest hand value. */
 /* 2. find index of winning hand(s). */
+/* ...but hi-lo, though (other poker variants, too)... */
 
 type getHandValue = (arg: {
   holeCards: NonEmptyArray<Card>;
@@ -29,20 +30,18 @@ export const getHandValue: getHandValue = (arg) => {
   /* Will use handComparator in here? Or just use getWinners directly? */
   /* What if a players hole cards yield multiple winner combos? */
   /*   -> community cards have presedence. */
-
-  /* Disable permutation stuff (for omaha etc.) for now. */
+  /* A test would yield clear answer. */
 
   // const permuations = getPermutations(arg.holeCards);
   // const possibleHands = permuations.map((p) =>
   //   getHandValueHelper(NEA.concat(arg.communityCards)(p))
   // );
-  // console.log(possibleHands);
   // const strongestValue = possibleHands.reduce(
   //   (ac, h) => (handComparator(h, ac) === 1 ? h : ac),
   //   possibleHands[0]
   // );
   // return strongestValue;
-  return getHandValueHelper(NEA.concat(arg.holeCards)(arg.communityCards));
+  return getHandValueHelper(NEA.concat(arg.communityCards)(arg.holeCards));
 };
 
 /* Think if this stuff make sense. */
@@ -58,6 +57,7 @@ const getPermutations: getPermutations = (xs) => {
   return [...perms, getPermutations(tail)] as typeof perms;
 };
 
+// put in util?
 type getCardPermutations = (
   cards: NonEmptyArray<Card>,
   nCardsInPermutation: number
@@ -68,6 +68,7 @@ const getCardPermutations = (hole) => {
 };
 
 export type PokerHand = { kind: HandName; cards: NonEmptyArray<Card> };
+// TODO: should be defined with a const-array.
 export type HandName =
   | "royalFlush"
   | "straightFlush"
@@ -80,6 +81,7 @@ export type HandName =
   | "pair"
   | "highCard";
 
+/* Should work with cards being both 5 and 7 cards. */
 type GetHandValueHelper = (cards: NonEmptyArray<Card>) => PokerHand;
 export const getHandValueHelper: GetHandValueHelper = (cards) => {
   const handResolvers = [
@@ -96,7 +98,7 @@ export const getHandValueHelper: GetHandValueHelper = (cards) => {
 
   return p(
     handResolvers,
-    reduceWhile(O.isNone, (_v, fn) => fn(cards), O.none),
+    reduceWhile(O.isNone, (_v, fn) => fn(sortByRank(cards)), O.none),
     O.getOrElse(() => getHighCards(cards))
   );
 };
@@ -115,7 +117,7 @@ const findStraightFlush: MadeHandResolver = (cards) => {
   return p(
     cards,
     groupBy(prop("suit")),
-    fpStdR.values,
+    libR.values,
     A.findFirst((suitp) => suitp.length >= 5),
     O.chain(findStraight),
     O.map(assoc("kind", "straightFlush"))
@@ -126,10 +128,10 @@ const findFourOfAKind: MadeHandResolver = (cards) =>
   p(
     cards,
     partitionByRank,
-    A.findFirst(f(size, equals(4))),
-    O.map((foakCards) => ({
+    A.findFirst(f(A.size, equals(4))),
+    O.map((fours) => ({
       kind: "fourOfAKind",
-      cards: p(foakCards, append(maxBy(cards, prop("rank")))),
+      cards: p(fours, append(maxBy(cards, prop("rank")))),
     }))
   );
 
@@ -145,7 +147,7 @@ const findFlush: MadeHandResolver = (cards) =>
   p(
     cards,
     groupBy(prop("suit")),
-    fpStdR.values,
+    libR.values,
     A.findFirst((gs) => gs.length >= 5),
     O.map(
       f(sortByRank, A.takeLeft(5), (flush) => ({
@@ -158,8 +160,8 @@ const findFlush: MadeHandResolver = (cards) =>
 const findStraight: MadeHandResolver = (cards) => {
   return p(
     cards,
-    sortByRank,
     unprepend,
+    // using uniq before below lambda would simplify?
     ([x, xs]) =>
       xs.reduce((cs, c) => {
         if (cs.length === 5 || c.rank === NEA.last(cs).rank) return cs;
@@ -171,13 +173,13 @@ const findStraight: MadeHandResolver = (cards) => {
     /* A "failable" operation in a chain, which is only done if some predicate passes. */
     (xs) => {
       if (xs.length === 4 && NEA.last(xs).rank === 2) {
-        /* Could be more functional with `ap`? ap1? ¯\_(ツ)_/¯ Also getOrElse? */
+        /* Could be more "functional" with `ap`? ap1? ¯\_(ツ)_/¯ Also getOrElse? */
         const ace = cards.find(f(prop("rank"), equals(14)));
         if (ace) return append(ace)(xs);
       }
       return xs;
     },
-    O.fromPredicate((cards) => cards.length === 5),
+    O.fromPredicate(f(A.size, equals(5))),
     O.map((cards) => ({ kind: "straight", cards }))
   );
 };
@@ -193,31 +195,47 @@ const findThreeOfAKind: MadeHandResolver = (cards) =>
     }))
   );
 
+// TODO?: try refactor findTwoPair and findPair to use a helper fn.
 const findTwoPair: MadeHandResolver = (cards) =>
   p(
-    cards,
-    partitionByRank,
-    A.filter(f(size, equals(2))),
-    A.takeLeft(2),
-    O.fromPredicate(f(size, equals(2))),
-    O.map((pairs) => {
-      const pCards = A.flatten(pairs);
-      const rest = difference(cards, pCards) as NEA.NonEmptyArray<Card>;
+    O.Do,
+    O.bind("pairCards", () =>
+      p(
+        cards,
+        partitionByRank,
+        A.filter(f(A.size, equals(2))),
+        A.takeLeft(2),
+        NEA.fromArray,
+        O.filter(f(A.size, equals(2))),
+        O.map(NEA.flatten)
+      )
+    ),
+    O.bind("highCard", ({ pairCards }) =>
+      p(difference(cards, pairCards), NEA.fromArray, O.map(NEA.head), O.of)
+    ),
+    O.map(({ pairCards, highCard }) => {
       return {
         kind: "twoPair",
-        cards: A.append(p(rest, sortByRank, NEA.head))(pCards),
+        cards: p(
+          highCard,
+          O.fold(
+            () => pairCards,
+            (hc) => A.append(hc)(pairCards)
+          )
+        ),
       };
     })
   );
 
 const findPair: MadeHandResolver = (cards) =>
   p(
-    cards,
-    partitionByRank,
-    f(findFirst(f(size, equals(2)))),
-    O.map((pair) => ({
+    O.Do,
+    O.bind("pair", () => p(cards, partitionByRank, A.findFirst(f(size, equals(2))))),
+    O.bind("highCards", ({ pair }) => p(difference(cards, pair), A.takeLeft(3), O.of)),
+    O.map(({ highCards, pair }) => ({
       kind: "pair",
-      cards: NEA.concat(p(difference(cards, pair), sortByRank, A.takeLeft(3)))(pair),
+      // cards: p(NEA.concat(p(difference(cards, pair), sortByRank, A.takeLeft(3)))(pair)),
+      cards: NEA.concat(highCards)(pair),
     }))
   );
 
@@ -227,4 +245,19 @@ const getHighCards: getHighCards = (cards) => {
     kind: "highCard",
     cards: p(cards, sortByRank, A.takeLeft(5)) as NonEmptyArray<Card>,
   };
+};
+
+/* Where and how should be used? */
+/* TODO: handle aces... */
+type findLo = (cards: NonEmptyArray<Card>) => O.Option<{ kind: "lo"; cards: NonEmptyArray<Card> }>;
+export const findLo: findLo = (cards) => {
+  return p(
+    cards,
+    A.filter(f(prop("rank"), (rank) => lte(rank)(8))), // TODO: concat or append with "highest ranked" ace.
+    uniq,
+    sortByRank,
+    A.takeRight(5),
+    O.fromPredicate<NonEmptyArray<Card>>(f(A.size, equals(5))),
+    O.map((cards) => ({ kind: "lo", cards }))
+  );
 };

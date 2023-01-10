@@ -7,11 +7,11 @@ export type PokerTable = CasinoTable & {
   communityCards: Card[];
   playerToAct: number;
   dealer: number; // seat index
-  gameConfig: PokerConfig;
+  gameConfig: PokerGameConfig;
   seats: Seat[];
 };
 
-export type PokerConfig = {
+export type PokerGameConfig = {
   variant: PokerVariant;
   blinds: number[]; // not a [number, number]-tuple to allow for more than sb and bb.
   rake: number;
@@ -35,14 +35,12 @@ export type TablePlayer = {
   isSittigOut: boolean;
 };
 
-export const isPlaying = (p: TablePlayer) => {
-  return p.isSittigOut === false && p.stack > 0;
-};
+export const isPlaying = (p: TablePlayer) => p.isSittigOut === false && p.stack > 0;
 
 export type TableConfig = {
   id: string;
   name: string;
-  gameConfig: PokerConfig;
+  gameConfig: PokerGameConfig;
   admins: string[]; // id of players?
 
   /* How to handle passwords and invitations? */
@@ -50,9 +48,7 @@ export type TableConfig = {
   /* Could be an array? if part of some "group", can join, otherwise need */
   /* to provide correct password (if password is enabled). */
   access: "password" | "invitationOnly" | "open";
-
   spectatable: boolean;
-
   owner: string; // player.id
 };
 
@@ -99,6 +95,7 @@ type BuyinConfig = {
   normal: number; // rename to "default"?
 };
 
+// ???
 type HandHistoryEntry = {
   players: [null][];
   stake: number;
@@ -106,6 +103,4 @@ type HandHistoryEntry = {
 };
 
 /* Maybe one file per type and their lenses? */
-type SetPokerConfig = { kind: "setPokerConfig"; config: PokerConfig };
-
-/* How does elm and/or haskell declare type for state machines? */
+type SetPokerConfig = { kind: "setPokerConfig"; config: PokerGameConfig };

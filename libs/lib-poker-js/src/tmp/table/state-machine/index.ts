@@ -1,6 +1,5 @@
-import { Action, mkTableAction } from "@banano-casino/lib-shared";
-import { Card, Deck } from "../shared/card";
-import { isPlaying, PokerTable } from "../tmp/table/table";
+import { Card, Deck, isPlaying, PokerTable } from "@banano-casino/lib-poker-js";
+import { Action } from "@banano-casino/lib-shared";
 import { bumpPlayerToAct } from "./util";
 
 /* TODO: some actions will have special "rules" to prevent exploits; */
@@ -10,35 +9,35 @@ import { bumpPlayerToAct } from "./util";
 /* TODO?: write descriptions for action "side effects" which are non obvious; */
 /* ie. toggling on posting blinds early also sets players "post blinds" to true. */
 
-type PokerAction = ReturnType<typeof poker[keyof typeof poker]>;
+export type PokerAction = ReturnType<typeof poker[keyof typeof poker]>;
 
-/* TODO: when have most actions complete, use array of actions names and mkTableAction to define the actions. */
+/* TODO: when have most actions complete, use array of actions names and Action to define the actions. */
 export const poker = {
   // = = = table play = = =
 
-  initNewHand: mkTableAction("initNewHand"),
+  initNewHand: () => Action("initNewHand"), // server
   // belonging to initNewHand
   dealHolecards: () => {},
 
   // hand init
   postBlind: (iBlind: number) => ({ ...Action("postBlind"), iBlind }), // split into each blind..?
-  togglePostBlinds: () => mkTableAction("togglePostBlinds"), // client->server
-  postBlindsEarly: () => mkTableAction("postBlindsEarly"),
-  bumpDealerPosition: () => mkTableAction("bumpDealerPosition"),
-  postAntes: () => mkTableAction("postAntes"), // server->client
+  togglePostBlinds: (seat: number) => ({ ...Action("togglePostBlinds"), seat }), // client->server
+  postBlindsEarly: () => Action("postBlindsEarly"),
+  bumpDealerPosition: () => Action("bumpDealerPosition"),
+  postAntes: () => Action("postAntes"), // server->client
 
-  straddle: mkTableAction("straddle"),
-  dealCards: mkTableAction("dealCards"),
+  straddle: () => Action("straddle"), // client->server
+  dealCards: () => Action("dealCards"), // server->client
 
   // preflop
-  check: mkTableAction("check"),
-  call: mkTableAction("call"),
-  fold: mkTableAction("fold"),
+  check: () => Action("check"),
+  call: () => Action("call"),
+  fold: () => Action("fold"),
   raise: (table: string, amount: number) => ({ ...Action("raise"), amount, table }),
 
-  //
-  reqDealTwice: mkTableAction("reqDealTwice"),
-  dealTwice: mkTableAction("dealTwice"),
+  // misc gameplay
+  reqDealTwice: () => Action("reqDealTwice"),
+  dealTwice: () => Action("dealTwice"),
 
   // server initiated game actions
   flop: (cards: [Card, Card, Card], table: string) => ({ ...Action("flop"), cards, table }),
@@ -47,9 +46,7 @@ export const poker = {
 
   // showdown events
   // Reveal and find players hand when their holecards are turned over.
-  // Server reveals hole cards, but don't need to announce hand strength and winner;
-  // All this can be re computed client side->minimize network traffic.
-  // What is usually bottleneck on websocket servers?
+  // Server reveals hole cards and winner(s).;
   showHolecards: (seat: number, cards: Card[]) => ({ ...Action("showHolecards"), seat, cards }),
   announceWinner: (seat: number) => ({ ...Action("announceWinner") }), // how exactly will work?
 };
@@ -120,7 +117,10 @@ export const initHand: initHand = (table) => {
   return [t, actions];
 };
 
-type updateTable = (table: PokerTable, action: TableAction) => [PokerTable, TableAction[]];
+/* Actually... new plan: */
+/* room name will be table name; ie. don't take table name to update a table in state. */
+
+type updateTable = (t: PokerTable, action: PokerAction) => [PokerTable, PokerAction[]];
 export const updateTable: updateTable = (table, action) => {
   return [table, [action]];
 };

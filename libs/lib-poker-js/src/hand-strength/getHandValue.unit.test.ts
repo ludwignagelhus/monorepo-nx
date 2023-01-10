@@ -1,7 +1,8 @@
 import { NonEmptyArray } from "fp-ts/lib/NonEmptyArray";
 import * as NEA from "fp-ts/NonEmptyArray";
+import * as O from "fp-ts/Option";
 import { Card } from "../shared/card";
-import { getHandValueHelper } from "./getHandValue";
+import { findLo, getHandValueHelper } from "./getHandValue";
 
 /* Can we include vitest types in tsconfig or something? */
 
@@ -17,6 +18,7 @@ it("should find royal flush.", () => {
     Card(12, "spades"),
     Card(13, "spades"),
   ];
+
   expect(getHandValueHelper(cards)).toEqual({
     kind: "royalFlush",
     cards: [
@@ -77,11 +79,11 @@ it("should find full house.", () => {
   expect(getHandValueHelper(cards)).toEqual({
     kind: "fullHouse",
     cards: [
-      Card(8, "hearts"),
       Card(8, "spades"),
+      Card(8, "hearts"),
       Card(8, "diamonds"),
-      Card(9, "diamonds"),
       Card(9, "clubs"),
+      Card(9, "diamonds"),
     ],
   });
 });
@@ -168,7 +170,7 @@ it("should find straight on paired board.", () => {
       Card(13, "clubs"),
       Card(12, "spades"),
       Card(11, "spades"),
-      Card(10, "hearts"),
+      Card(10, "spades"),
       Card(9, "clubs"),
     ],
   });
@@ -207,8 +209,8 @@ it("should find three of a kind.", () => {
   expect(getHandValueHelper(cards)).toEqual({
     kind: "threeOfAKind",
     cards: [
-      Card(8, "hearts"),
       Card(8, "spades"),
+      Card(8, "hearts"),
       Card(8, "diamonds"),
       Card(12, "clubs"),
       Card(9, "diamonds"),
@@ -216,7 +218,7 @@ it("should find three of a kind.", () => {
   });
 });
 
-it("should find two pair.", () => {
+it("Should find two pair.", () => {
   const cards: NonEmptyArray<Card> = [
     Card(9, "diamonds"),
     Card(9, "hearts"),
@@ -230,8 +232,8 @@ it("should find two pair.", () => {
   expect(getHandValueHelper(cards)).toEqual({
     kind: "twoPair",
     cards: [
-      Card(9, "diamonds"),
       Card(9, "hearts"),
+      Card(9, "diamonds"),
       Card(8, "spades"),
       Card(8, "diamonds"),
       Card(12, "clubs"),
@@ -239,7 +241,7 @@ it("should find two pair.", () => {
   });
 });
 
-it("should find pair.", () => {
+it("Should find pair.", () => {
   const cards: NonEmptyArray<Card> = [
     Card(9, "diamonds"),
     Card(10, "hearts"),
@@ -268,7 +270,7 @@ it("should find pair when only given 2 hole cards.", () => {
   });
 });
 
-it("should find high card.", () => {
+it("Should find high card.", () => {
   const cards: NonEmptyArray<Card> = [
     Card(2, "diamonds"),
     Card(8, "spades"),
@@ -288,4 +290,42 @@ it("should find high card.", () => {
       Card(5, "spades"),
     ],
   });
+});
+
+/* = = = Lo hand = = = */
+// it("Should not find lo hand.", () => {
+//   const cards: NonEmptyArray<Card> = [
+//     Card(13, "diamonds"),
+//     Card(11, "hearts"),
+//     Card(8, "spades"),
+//     Card(6, "clubs"),
+//     Card(5, "spades"),
+//   ];
+//   expect(findLo(cards)).toEqual(O.none);
+// });
+
+it("Should find lo hand.", () => {
+  const cards: NonEmptyArray<Card> = [
+    Card(6, "diamonds"),
+    Card(5, "hearts"),
+    Card(4, "spades"),
+    Card(3, "spades"),
+    Card(2, "clubs"),
+  ];
+  expect(findLo(cards)).toEqual(O.some({ kind: "lo", cards }));
+});
+
+// How can check if invalid lo hand?
+// - not has pairs?
+// - length 5
+// thats it?
+it("Should not find lo hand.", () => {
+  const cards: NonEmptyArray<Card> = [
+    Card(6, "diamonds"),
+    Card(5, "hearts"),
+    Card(4, "spades"),
+    Card(3, "spades"),
+    Card(2, "clubs"),
+  ];
+  expect(findLo(cards)).toEqual(O.some({ kind: "lo", cards }));
 });

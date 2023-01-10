@@ -1,5 +1,5 @@
 import * as NEA from "fp-ts/NonEmptyArray";
-import { takeRandom } from "./index";
+import { takeRandom } from "..";
 
 /* This is a good exp for the following: */
 /* - NEA as input, or Option as output? */
