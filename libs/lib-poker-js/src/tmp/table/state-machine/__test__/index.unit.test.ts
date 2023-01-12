@@ -1,8 +1,8 @@
 import { Card, PokerTable } from "@banano-casino/lib-poker-js";
 import * as A from "fp-ts/lib/Array";
 import { difference } from "ramda";
-import { initHand, PokerAction } from "./index";
-import { testTableConfig } from "../test-utils";
+import { initHand, PokerAction } from "..";
+import { testTableConfig } from "./test-util";
 
 /* Testing special hand things...? */
 

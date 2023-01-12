@@ -1,3 +1,4 @@
+import { table } from "@banano-casino/lib-casino";
 import { Card, Deck, isPlaying, PokerTable } from "@banano-casino/lib-poker-js";
 import { Action } from "@banano-casino/lib-shared";
 import { bumpPlayerToAct } from "./util";
@@ -13,6 +14,7 @@ export type PokerAction = ReturnType<typeof poker[keyof typeof poker]>;
 
 /* TODO: when have most actions complete, use array of actions names and Action to define the actions. */
 export const poker = {
+  ...table,
   // = = = table play = = =
 
   initNewHand: () => Action("initNewHand"), // server
@@ -33,16 +35,16 @@ export const poker = {
   check: () => Action("check"),
   call: () => Action("call"),
   fold: () => Action("fold"),
-  raise: (table: string, amount: number) => ({ ...Action("raise"), amount, table }),
+  raise: (amount: number) => ({ ...Action("raise"), amount }),
 
   // misc gameplay
   reqDealTwice: () => Action("reqDealTwice"),
   dealTwice: () => Action("dealTwice"),
 
   // server initiated game actions
-  flop: (cards: [Card, Card, Card], table: string) => ({ ...Action("flop"), cards, table }),
-  turn: (cards: [Card, Card, Card], table: string) => ({ ...Action("turn"), cards, table }),
-  river: (cards: [Card, Card, Card], table: string) => ({ ...Action("river"), cards, table }),
+  flop: (cards: [Card, Card, Card]) => ({ ...Action("flop"), cards }),
+  turn: (cards: [Card, Card, Card]) => ({ ...Action("turn"), cards }),
+  river: (cards: [Card, Card, Card]) => ({ ...Action("river"), cards }),
 
   // showdown events
   // Reveal and find players hand when their holecards are turned over.

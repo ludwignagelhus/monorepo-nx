@@ -1,3 +1,5 @@
+import { PokerGameConfig } from "../tmp/table";
+
 /* Is this needed on the client at all? */
 /* Yeah, some things are; */
 /* - tournament ticket */
@@ -43,19 +45,19 @@ type TournamentConfig = {
       amount: number; // number of seconds to add
     };
   };
-  pokerConfig: PokerConfig["id"];
+  pokerConfig: PokerGameConfig["id"];
 };
-const TounamentConfig: (arg: Partial<TournamentConfig>) => TournamentConfig = (
-  arg: Partial<TournamentConfig>
-) => {
-  return {
-    foo: "bar",
-  };
-};
+// const TounamentConfig: (arg: Partial<TournamentConfig>) => TournamentConfig = (
+//   arg: Partial<TournamentConfig>
+// ) => {
+//   return {
+//     foo: "bar",
+//   };
+// };
 
 type Tournament = {
   id: string;
-  tables: PokerTable[];
+  tables: PokerGameConfig[];
 };
 
 type TournamentTicket = {

@@ -1,6 +1,6 @@
-import { TableConfig, PokerConfig } from "@banano-casino/lib-poker-js";
+import { PokerGameConfig, TableConfig } from "@banano-casino/lib-poker-js";
 
-const gameConfig: PokerConfig = {
+const gameConfig: PokerGameConfig = {
   variant: "holdem",
   blinds: [0.5, 1],
   rake: 0.15,

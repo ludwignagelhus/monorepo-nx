@@ -1,6 +1,4 @@
-/* ?Reuse table config for many tests? */
-
-import { TableConfig } from "./table";
+import { TableConfig } from "@banano-casino/lib-poker-js";
 
 export const testTableConfig: TableConfig = {
   access: "open",

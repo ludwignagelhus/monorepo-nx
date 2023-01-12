@@ -1,5 +1,5 @@
 import { TableConfig } from "@banano-casino/lib-poker-js";
-import { Action, mkTableAction } from "@banano-casino/lib-shared";
+import { Action } from "@banano-casino/lib-shared";
 
 /* # # # Actions for making things happen. # # # */
 
@@ -50,24 +50,27 @@ export type Action = ReturnType<typeof casino[keyof typeof casino]>;
 // --> response from table
 // async action?
 
-const table = {
-  tableVisit: (arg: {}) => Action("tableVisit"),
-  reqSeat: (seat: number) => ({ ...mkTableAction("requestSeat"), seat }),
+export const table = {
+  reqSeat: (seat: number) => ({ ...Action("requestSeat"), seat }),
+  addChips: (amount: number) => ({ ...Action("addChips"), amount }), // <- needs check
+  sitOut: () => Action("sitOut"),
+  sitIn: (postBlinds: boolean) => ({ ...Action("sitIn"), postBlinds }),
+  seatLeave: (seat: number) => ({ ...Action("reserveSeat"), seat }),
+  tableLeave: (arg: {}) => Action("tableAdded"),
+
+  // Also pass some optional player gameplay settings? post-blinds etc.
+  // Or, when player joins, create a promise to get and potentially apply players settings from db...
+  // Not sure which yet.
   seatOccupy: (arg: { seat: number; displayName: string; chips: number }) => ({
     // ^needs check
-    ...mkTableAction("occupySeat"),
+    ...Action("occupySeat"),
     ...arg,
   }),
-  addChips: (amount: number) => ({ ...mkTableAction("addChips"), amount }), // <- needs check
-  sitOut: mkTableAction("sitOut"),
-  sitIn: (postBlinds: boolean) => ({ ...mkTableAction("sitIn"), postBlinds }),
-  seatLeave: (seat: number) => ({ ...mkTableAction("reserveSeat"), seat }),
-  tableLeave: (arg: {}) => Action("tableAdded"),
 };
 
 const chat = {
   // sending chat; results in
-  sendChat: (room: string, text: string) => ({ ...mkTableAction("chat") }),
+  sendChat: (room: string, text: string) => ({ ...Action("chat") }),
   chatMessage: (msg: ChatMessage) => ({ ...Action("chatMessage"), ...msg }),
 };
 
@@ -76,7 +79,7 @@ const lobby = {
   lobbyLeave: () => ({ ...Action("lobbyLeave") }),
 
   tableAdded: (arg: {}) => Action("tableAdded"), // server
-  tableRemoved: mkTableAction("tableRemoved"), // server
+  tableRemoved: Action("tableRemoved"), // server
 };
 
 const tournament = {
@@ -85,7 +88,7 @@ const tournament = {
   // tournament (both mtt and sngs?)
   // both join and rebuy? but want to alert other players at table, that a player
   // rebought, and not joined when they do rebuy. Probably add rebuy as separate action.
-  tournamentJoin: (/* id: Tournament["id"] */) => ({ ...mkTableAction("joinTournament") }),
+  tournamentJoin: (/* id: Tournament["id"] */) => ({ ...Action("joinTournament") }),
   buyAddOn: (/* id: Tournament["id"] */) => ({ ...Action("buyAddOn") }),
   tournamentStart: () => {},
 };

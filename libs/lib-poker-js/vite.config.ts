@@ -19,7 +19,7 @@ export default defineConfig({
     lib: {
       entry: "src/index.ts",
       name: "pure-libs-rlv1",
-      fileName: "index",
+      // fileName: "index",
       formats: ["es", "cjs"],
     },
   },
