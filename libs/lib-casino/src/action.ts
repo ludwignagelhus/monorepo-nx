@@ -1,5 +1,6 @@
 import { TableConfig } from "@banano-casino/lib-poker-js";
 import { Action } from "@banano-casino/lib-shared";
+import { poker } from "@banano-casino/lib-poker-js";
 
 /* # # # Actions for making things happen. # # # */
 
@@ -24,54 +25,23 @@ import { Action } from "@banano-casino/lib-shared";
 // Refactor this to match new architecture of actions.
 // Casino can depend on sub game libs? ie. import object with poker
 // actions from lib-poker in lib-casino.
-export type Action = ReturnType<typeof casino[keyof typeof casino]>;
+// export type Action = ReturnType<typeof casino[keyof typeof casino]>;
 
-// Some actions are a bit different? Actions pertainig to joing/leaving things
-//   >> "transactional" in nature.
-// In these situations... client->server and server->SM may be different?
-// Or needn't be? Here can also verify that incoming transaction actions are valid.
+type Message = {
+  text: string;
+  author: string; // username?
+  timestamp: string;
+};
 
-// For actions which trigger/need a balance check...
-// Have some service for this? balanceService?
-// - check balance
-// - balanace transaction request
-// - deposit
-// - withdraw
-// (- send to other players?)
-
-// And how would this work? Before send action on it's way...
-// Idk... communicate with balanceService in some way...
-// get balance from balance service?
-// balance service reserves some money for a short while?
-// reservation number is returned as response.
-// - player: I wish to join this table. Take moeny from my balance from balance service.
-// -> enough balance?
-// -> transfer successful?
-// --> response from table
-// async action?
-
-export const table = {
-  reqSeat: (seat: number) => ({ ...Action("requestSeat"), seat }),
-  addChips: (amount: number) => ({ ...Action("addChips"), amount }), // <- needs check
-  sitOut: () => Action("sitOut"),
-  sitIn: (postBlinds: boolean) => ({ ...Action("sitIn"), postBlinds }),
-  seatLeave: (seat: number) => ({ ...Action("reserveSeat"), seat }),
-  tableLeave: (arg: {}) => Action("tableAdded"),
-
-  // Also pass some optional player gameplay settings? post-blinds etc.
-  // Or, when player joins, create a promise to get and potentially apply players settings from db...
-  // Not sure which yet.
-  seatOccupy: (arg: { seat: number; displayName: string; chips: number }) => ({
-    // ^needs check
-    ...Action("occupySeat"),
-    ...arg,
-  }),
+type Announcement = {
+  text: string;
+  title: string; // username?
+  timestamp: string;
 };
 
 const chat = {
-  // sending chat; results in
-  sendChat: (room: string, text: string) => ({ ...Action("chat") }),
-  chatMessage: (msg: ChatMessage) => ({ ...Action("chatMessage"), ...msg }),
+  sendChat: (msg: Message) => ({ ...Action("chat") }),
+  announcement: (msg: Announcement) => ({ ...Action("announcement") }),
 };
 
 const lobby = {
@@ -79,7 +49,7 @@ const lobby = {
   lobbyLeave: () => ({ ...Action("lobbyLeave") }),
 
   tableAdded: (arg: {}) => Action("tableAdded"), // server
-  tableRemoved: Action("tableRemoved"), // server
+  tableRemoved: () => ({ ...Action("tableRemoved") }), // server
 };
 
 const tournament = {
@@ -100,7 +70,13 @@ const player = {};
 
 // Will work nicely with lenses too?
 
+// Aka. casino action.
 export const casino = {
+  ...poker,
+  ...lobby,
+  ...chat,
+  ...player,
+  ...tournament,
   // administer tables and private rooms
   createTable: (config: TableConfig["id"]) => Action("requestCreateTable"),
 

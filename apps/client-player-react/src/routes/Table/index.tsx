@@ -1,20 +1,14 @@
-/* so: */
-/* simple impl. */
-/* deploy */
-/* create beautiful ui, and ui for different devices. */
-/* = = = = = = = =  */
 import * as poker from "@banano-casino/lib-poker-js";
+import { snakeCase } from "@banano-casino/util";
 import { Fragment, useState } from "react";
+import { useParams } from "react-router-dom";
 import { Card } from "../../lib/Card";
+import { useCasino } from "../../lib/state";
 import { wsSend } from "../../ws";
 import style from "./index.module.scss";
 
 /* A few of these types can probably be imported from lib-poker-js. */
 /* Can use Omit<"id", [PokerType]> when using types on the client. */
-
-/* TODO: card things can probably go in it own module... */
-
-type PlayerAtTable = {};
 
 type ClientCard = { kind: "faceDown" } | ({ kind: "faceUp" } & poker.Card);
 
@@ -28,17 +22,25 @@ type SeatedPlayer = {
 
 type Button = "dealer" | "bigBlind" | "smallBlind";
 
-type PropsTable = {
-  config: {};
-  seats: PlayerAtTable | null[];
-};
+/* Try using multiplexing thing for tables? */
+/* Ie. each table/room simulates it's own connection. */
 
-/* four-handed for dev. */
+export const Table = () => {
+  // read table name from url. and then...
+  const { tableName } = useParams();
 
-export const Table = (props: PropsTable) => {
+  // Handle this gracefully.
+  if (!tableName) return <></>;
+
+  const casino = useCasino();
+  const table = Object.values(casino.tables).find((t) => snakeCase(t.name) === tableName);
+  console.log(table);
+  if (!table) return <></>;
+
   return (
     <>
       <div className={style.TableWrapper}>
+        <p>{table.name}</p>
         <SeatedPlayer
           cards={[{ kind: "faceDown" }, { kind: "faceDown" }]}
           button="smallBlind"
@@ -58,7 +60,7 @@ export const Table = (props: PropsTable) => {
         <SeatedPlayer cards={[]} button="dealer" chips={100} displayName="Chad" />
       </div>
       <CommunityCards />
-      <Actions />
+      <ActionPanel />
     </>
   );
 };
@@ -122,7 +124,7 @@ const CommunityCards = () => {
 };
 
 /* Here need to differentiate between bet and raise. */
-const Actions = () => {
+const ActionPanel = () => {
   const [bet, setBet] = useState(1);
 
   /* Problem setting background for input. */
@@ -132,20 +134,19 @@ const Actions = () => {
   /* TODO: add slider to bet amount. */
   return (
     <div className="flex gap-3">
-      <button className="btn btn-accent bg-red-300" onClick={() => wsSend.check("amazonas")}>
+      <button className="btn btn-accent bg-red-300" onClick={() => wsSend.check()}>
         check
       </button>
-      <button className="btn btn-accent bg-red-300" onClick={() => wsSend.fold("amazonas")}>
+      <button className="btn btn-accent bg-red-300" onClick={() => wsSend.fold()}>
         fold
       </button>
-      <button className="btn btn-accent bg-red-300" onClick={() => wsSend.raise("amazonas", bet)}>
+      <button className="btn btn-accent bg-red-300" onClick={() => wsSend.raise(bet)}>
         bet
       </button>
       <input
         className="input input-bordered opacity-1 bg-white w-full max-w-xs"
         onWheel={(e) => setBet((p) => (e.deltaY < 0 ? p + 1 : Math.max(0, p - 1)))}
         onChange={(e) => {
-          /* What is n when currentTarget.value is not number? */
           const n = Number.parseFloat(e.currentTarget.value);
           typeof n === "number" && setBet(n);
         }}

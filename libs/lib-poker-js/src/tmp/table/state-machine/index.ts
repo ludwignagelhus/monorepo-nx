@@ -1,7 +1,7 @@
-import { table } from "@banano-casino/lib-casino";
-import { Card, Deck, isPlaying, PokerTable } from "@banano-casino/lib-poker-js";
-import { Action } from "@banano-casino/lib-shared";
+import { Card, Deck } from "../../../shared";
+import { Action, table } from "@banano-casino/lib-shared";
 import { bumpPlayerToAct } from "./util";
+import { isPlaying, PokerTable } from "../table";
 
 /* TODO: some actions will have special "rules" to prevent exploits; */
 /* eg. cannot leave and join same table to reduce ones stack. */

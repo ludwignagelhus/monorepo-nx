@@ -1,6 +1,6 @@
 import { Link, Navigate, Route, Routes } from "react-router-dom";
-import { Lobby } from "./routes/Lobby";
 import { Table } from "./routes/Table";
+import { Lobby } from "./routes/Lobby";
 
 export function App() {
   return (
@@ -13,7 +13,10 @@ export function App() {
       <Routes>
         // "/" goes to page/component(s) being developing.
         <Route path="/" element={<Navigate to="table" />} />
-        <Route path="table" element={<Table config={{}} seats={[]} />} />
+        <Route path="table">
+          <Route path=":tableName" element={<Table />} />
+        </Route>
+        <Route path="table" element={<Table />} />
         <Route path="lobby" element={<Lobby />} />
       </Routes>
     </>
