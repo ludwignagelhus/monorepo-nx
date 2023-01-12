@@ -9,7 +9,7 @@ import { map } from "fp-ts/lib/Array";
 /* Think yes. */
 
 export type BananoCasino = {
-  tables: Record<CasinoTable["id"], CasinoTable>;
+  tables: Record<CasinoTable["id"], PokerTable>;
   users: User[];
   chat: ChatMessage[];
 };

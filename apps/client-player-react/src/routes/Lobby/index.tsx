@@ -1,5 +1,6 @@
 import { PokerTable } from "@banano-casino/lib-poker-js";
 import { snakeCase } from "@banano-casino/util";
+import { count } from "ramda";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCasino, useTable } from "../../lib/state";
@@ -41,9 +42,9 @@ const TableInList = (props: PropsTableInList) => {
         wsSend.tableVisit(table.name);
       }}
     >
-      <p style={{ fontWeight: "bold" }}>Amazonas</p>
-      <p>No-limit Texas hold'em</p>
-      <p>3/4</p>
+      <p style={{ fontWeight: "bold" }}>{table.name}</p>
+      <p>{table.gameConfig.variant}</p>
+      <p>{`${count((s) => !!s, table.seats)}/${table.seats.length}`}</p>
     </div>
   );
 };
